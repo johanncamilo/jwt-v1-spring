@@ -12,23 +12,16 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-     private final AuthService authService;
+     private final AuthService authService;    
     
-    @PostMapping(value = "login")
-    public String login()
-    {
-        return "Login endpoint is not implemented yet.";
+    @PostMapping("login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
-    // @PostMapping(value = "login")
-    // public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request)
-    // {
-    //     return ResponseEntity.ok(authService.login(request));
-    // }
-
-    // @PostMapping(value = "register")
-    // public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request)
-    // {
-    //     return ResponseEntity.ok(authService.register(request));
-    // }    
+    @PostMapping("register")
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request)
+    {
+        return ResponseEntity.ok(authService.register(request));
+    }
 }
