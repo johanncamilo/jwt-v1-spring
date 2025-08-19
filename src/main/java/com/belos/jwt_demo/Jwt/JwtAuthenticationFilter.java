@@ -3,6 +3,11 @@ package com.belos.jwt_demo.Jwt;
 import java.io.IOException;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -11,12 +16,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 /**
  * OncePerRequestFilter clase abstracta para crear fitros personalizados
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     /**
      * * doFilterInternal método que se ejecuta una vez por cada petición
@@ -33,11 +43,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // todo obtener el token del request
                 final String token = getTokenFomRequest(request);
+                final String username;
 
                 if(token == null) {
                     filterChain.doFilter(request, response); // si no hay token, continuamos con la cadena de filtros
                     return;
                 }
+
+                username = jwtService.getUsernameFromToken(token);
+
+                if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                    if(jwtService.isTokenValid(token, userDetails)) {
+                        // todo: actualizar el SecurityContextHolder
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext();
+                    }
+
+                }
+
                 filterChain.doFilter(request, response); // si hay token, continuamos con la cadena de filtros
 
                 // * Ideas de copilot
@@ -64,7 +93,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // obtenemos el header
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION); // Authorization es el nombre del header que contiene el token JWT
 
-        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer")) { // Verificamos que el header no esté vacío y que comience con "Bearer"
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) { // Verificamos que el header no esté vacío y que comience con "Bearer"
             return authHeader.substring(7); // Extraemos el token JWT del header, eliminando el prefijo "Bearer "
         }
         return null;

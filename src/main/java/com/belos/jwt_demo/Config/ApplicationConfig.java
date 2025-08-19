@@ -37,7 +37,13 @@ public class ApplicationConfig {
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailService()); // Este DaoAuthenticationProvider usa Data Access Object para autenticar usuarios usando datos de la base de datos.
+        /**
+         * *Data Access Object (DAO) Authentication Provider
+         * DaoAuthenticationProvider es un proveedor de autenticación que utiliza un UserDetailsService para cargar los detalles del usuario.
+         * Este proveedor de autenticación se utiliza para autenticar usuarios basándose en sus credenciales
+         * usa Data Access Object para autenticar usuarios usando datos de la base de datos.
+         */
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return authenticationProvider;

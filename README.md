@@ -50,3 +50,13 @@ es una implementación de `AuthenticationProvider` en Spring Security que se enc
 Utiliza un UserDetailsService para cargar los datos del usuario (como nombre de usuario y contraseña) y un PasswordEncoder para verificar la contraseña.
 
 En resumen, DaoAuthenticationProvider permite que Spring Security valide usuarios y contraseñas consultando la base de datos y comparando la contraseña ingresada con la almacenada (normalmente cifrada).
+
+
+
+## PROCESO AUTENTICACION
+![alt text](src/main/resources/static/autenticacion.png)
+
+
+## PETICION POSTMAN RUTA PROTEGIDA
+
+![alt text](image.png)
